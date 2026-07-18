@@ -1,0 +1,408 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FIZx² // Sovereign Singularity</title>
+    <style>
+        body { margin: 0; background: #000; overflow: hidden; font-family: 'Courier New', monospace; }
+        canvas { display: block; }
+        
+        #top-nav {
+            position: absolute; top: 20px; left: 20px; z-index: 100;
+            display: flex; gap: 10px; width: 400px; max-width: 90vw;
+        }
+
+
+        .nav-gate {
+            flex: 1; background: rgba(0, 20, 30, 0.8); border: 1px solid #00f0ff;
+            color: #00f0ff; padding: 10px; cursor: pointer; font-size: 0.8rem;
+            letter-spacing: 2px; transition: 0.3s; text-align: center;
+            user-select: none; border-radius: 2px;
+        }
+        .nav-gate:hover { background: #00f0ff; color: #000; }
+        
+        #equation-vault {
+            display: none; position: absolute; top: 70px; left: 20px; z-index: 100;
+            background: rgba(0, 5, 10, 0.98); border-left: 4px solid #00f0ff;
+            padding: 20px; color: #fff; font-size: 1.1rem; line-height: 2.2;
+            box-shadow: 0 0 30px rgba(0,0,0,1); max-height: 80vh; overflow-y: auto;
+            width: 160px;
+        }
+
+
+        #data-vault {
+            display: none; position: absolute; top: 70px; left: 230px; z-index: 100;
+            background: rgba(0, 5, 10, 0.98); border-right: 4px solid #00f0ff;
+            padding: 20px; color: #fff; width: 150px;
+        }
+
+
+        .symbol-option { 
+            font-weight: bold; cursor: pointer; display: block; 
+            transition: 0.2s; color: #444;
+            animation: pulseText 3s infinite ease-in-out;
+        }
+        .symbol-option:hover { color: #fff; padding-left: 10px; }
+        .active-logic { color: #00f0ff !important; text-shadow: 0 0 25px #00f0ff; animation: none !important; }
+
+
+        @keyframes pulseText {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; text-shadow: 0 0 10px rgba(0, 240, 255, 0.5); }
+        }
+
+
+        #pdf-compile-btn {
+            position: absolute; bottom: 60px; left: 20px; z-index: 100;
+            width: 50px; height: 50px; border-radius: 50%;
+            background: rgba(0, 20, 30, 0.8); border: 2px solid #00f0ff;
+            color: #00f0ff; cursor: pointer; display: flex;
+            align-items: center; justify-content: center; font-weight: bold;
+            transition: 0.3s; user-select: none; font-size: 0.7rem;
+        }
+        #pdf-compile-btn:hover { background: #00f0ff; color: #000; transform: scale(1.1); }
+
+
+        #slow-mo-btn {
+            position: absolute; bottom: 60px; right: 20px; z-index: 100;
+            width: 50px; height: 50px; border-radius: 50%;
+            background: rgba(0, 20, 30, 0.8); border: 2px solid #00f0ff;
+            color: #00f0ff; cursor: pointer; display: flex;
+            align-items: center; justify-content: center; font-weight: bold;
+            transition: 0.3s; user-select: none; font-size: 0.7rem; text-align: center;
+        }
+        #slow-mo-btn:hover { background: #00f0ff; color: #000; transform: scale(1.1); }
+        .active-btn { background: #00f0ff !important; color: #000 !important; box-shadow: 0 0 15px #00f0ff; }
+
+
+        #data-streams-container {
+            display: none; position: absolute; bottom: 120px; right: 20px; z-index: 100;
+            flex-direction: column; gap: 10px; pointer-events: none;
+        }
+        
+        .data-window {
+            background: rgba(0, 10, 15, 0.85); border: 1px solid #00f0ff;
+            color: #00f0ff; padding: 8px; font-size: 0.75rem; width: 240px;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.2); text-transform: uppercase;
+        }
+        .data-label { color: #fff; margin-bottom: 4px; border-bottom: 1px solid #444; padding-bottom: 2px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+
+<div id="top-nav">
+    <div class="nav-gate" onclick="toggleVault('equation-vault')">[ GEOMETRY ]</div>
+    <div class="nav-gate" onclick="toggleVault('data-vault')">[ SYSTEM_DATA ]</div>
+</div>
+
+
+<div id="equation-vault">
+    <div class="symbol-option active-logic" data-logic="ORIGINAL" onclick="setLogic('ORIGINAL', this)">🌀 PHI_ORIGINAL</div>
+    <div class="symbol-option" data-logic="TORUS" onclick="setLogic('TORUS', this)">⌬ RING_TORUS</div>
+    <div class="symbol-option" data-logic="TESSERACT" onclick="setLogic('TESSERACT', this)">▧ TESSERACT</div>
+    <div class="symbol-option" data-logic="THREEBODY" onclick="setLogic('THREEBODY', this)">⚛︎ THREE_BODY</div>
+    <div class="symbol-option" data-logic="HYPERBOLIC" onclick="setLogic('HYPERBOLIC', this)">◒ HYPERBOLIC</div>
+    <div class="symbol-option" data-logic="SOVEREIGN" onclick="setLogic('SOVEREIGN', this)">✧ GOLDEN_SPIRAL</div>
+</div>
+
+
+<div id="data-vault">
+    <div class="symbol-option" onclick="toggleDataStreams()">◮ TOGGLE_STREAMS</div>
+</div>
+
+
+<div id="pdf-compile-btn" onclick="compileToPDF()">PDF</div>
+
+
+<div id="slow-mo-btn" onclick="toggleSlowMo(this)">0.2X</div>
+
+
+<div id="data-streams-container">
+    <div class="data-window">
+        <div class="data-label">METABOLIC_EFFICIENCY</div>
+        <div id="stream-perf">MS_FRAME: 0.00 | LOAD: 0.0%</div>
+        <div id="stream-stability">STABILITY: 100.0%</div>
+    </div>
+    <div class="data-window">
+        <div class="data-label">COORDINATE_VARIANCE</div>
+        <div id="stream-var">DENSITY_VAR: 0.0000</div>
+        <div id="stream-dist">DISTRIBUTION: SYMMETRIC</div>
+    </div>
+    <div class="data-window">
+        <div class="data-label">TOPOLOGICAL_COMPLEXITY</div>
+        <div id="stream-topo">RECURSIVE_FOLDS: 1</div>
+        <div id="stream-state">STATE: ORIGINAL</div>
+    </div>
+</div>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+
+<script>
+    let scene, camera, renderer, controls, particleSystem;
+    let currentLogic = 'ORIGINAL';
+    const S = 1.61803398875;
+    const COUNT = 18000;
+    let streamsActive = false;
+    let globalTime = 0;
+    
+    let lastTime = performance.now();
+    let frameTimes = [];
+    
+    let timeMultiplier = 1.0;
+    let accumulatedTime = 0;
+
+
+    const TOPOLOGY_MAP = {
+        'ORIGINAL': { folds: 1, dist: 'RADIAL_SYMMETRIC', baseVar: 0.0018 },
+        'TORUS': { folds: 2, dist: 'TOROIDAL_HORN_CLOSED', baseVar: 0.0024 },
+        'TESSERACT': { folds: 4, dist: 'ORTHOGONAL_HYPER', baseVar: 0.0031 },
+        'THREEBODY': { folds: 3, dist: 'CHAOTIC_ATTRACTOR', baseVar: 0.0045 },
+        'HYPERBOLIC': { folds: 'ASYMPTOTIC', dist: 'OPEN_BOUNDARY', baseVar: 0.0052 },
+        'SOVEREIGN': { folds: 1, dist: 'GOLDEN_SPIRAL', baseVar: 0.0021 }
+    };
+
+
+    function createCircleTexture() {
+        const canvas = document.createElement('canvas');
+        canvas.width = 64; canvas.height = 64;
+        const ctx = canvas.getContext('2d');
+        const gradient = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+        gradient.addColorStop(0, 'rgba(255,255,255,1)');
+        gradient.addColorStop(0.2, 'rgba(255,255,255,0.8)');
+        gradient.addColorStop(0.5, 'rgba(200,250,255,0.4)');
+        gradient.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, 64, 64);
+        return new THREE.CanvasTexture(canvas);
+    }
+
+
+    function init() {
+        scene = new THREE.Scene();
+        camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2500);
+        camera.position.set(0, 80, 400);
+
+
+        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        document.body.appendChild(renderer.domElement);
+
+
+        controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+
+
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(COUNT * 3), 3));
+        geometry.setAttribute('color', new THREE.BufferAttribute(new Float32Array(COUNT * 3), 3));
+
+
+        const material = new THREE.PointsMaterial({
+            size: 2.5,
+            map: createCircleTexture(),
+            transparent: true,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false,
+            depthTest: false,
+            vertexColors: true 
+        });
+
+
+        particleSystem = new THREE.Points(geometry, material);
+        scene.add(particleSystem);
+
+
+        animate();
+    }
+
+
+    window.setLogic = function(type, el) {
+        currentLogic = type;
+        document.querySelectorAll('.symbol-option').forEach(opt => opt.classList.remove('active-logic'));
+        if(el) el.classList.add('active-logic');
+        document.getElementById('stream-state').innerText = `STATE: ${currentLogic}`;
+        document.getElementById('stream-topo').innerText = `RECURSIVE_FOLDS: ${TOPOLOGY_MAP[currentLogic].folds}`;
+        document.getElementById('stream-dist').innerText = `DISTRIBUTION: ${TOPOLOGY_MAP[currentLogic].dist}`;
+    };
+
+
+    window.toggleVault = function(vaultId) {
+        const vault = document.getElementById(vaultId);
+        const otherVault = vaultId === 'equation-vault' ? document.getElementById('data-vault') : document.getElementById('equation-vault');
+        otherVault.style.display = 'none';
+        vault.style.display = vault.style.display === 'block' ? 'none' : 'block';
+    };
+
+
+    window.toggleDataStreams = function() {
+        streamsActive = !streamsActive;
+        document.getElementById('data-streams-container').style.display = streamsActive ? 'flex' : 'none';
+    };
+
+
+    window.toggleSlowMo = function(el) {
+        if (timeMultiplier === 1.0) {
+            timeMultiplier = 0.15; 
+            el.innerText = "1.0X";
+            el.classList.add('active-btn');
+        } else {
+            timeMultiplier = 1.0;
+            el.innerText = "0.2X";
+            el.classList.remove('active-btn');
+        }
+    };
+
+
+    window.compileToPDF = function() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const top = TOPOLOGY_MAP[currentLogic];
+        
+        let currentMs = frameTimes.length ? (frameTimes.reduce((a, b) => a + b) / frameTimes.length) : 16.6;
+        let efficiency = 100 - (currentMs / 16.6) * 1.5;
+        if(efficiency > 100) efficiency = 99.9;
+        
+        doc.setFillColor(0, 5, 10);
+        doc.rect(0, 0, 210, 297, 'F');
+        
+        doc.setTextColor(0, 240, 255);
+        doc.setFont("courier", "bold");
+        
+        doc.text("SOVEREIGN LATTICE // BLACK BOX ANALYSIS", 10, 20);
+        doc.setFont("courier", "normal");
+        doc.text(`TIMESTAMP: ${new Date().toISOString()}`, 10, 30);
+        doc.text(`ACTIVE_GEOMETRY: ${currentLogic}`, 10, 40);
+        
+        doc.setFont("courier", "bold");
+        doc.text("--- METABOLIC EFFICIENCY ---", 10, 60);
+        doc.setFont("courier", "normal");
+        doc.text(`VERTEX_COUNT: ${COUNT}`, 10, 70);
+        doc.text(`FRAME_LATENCY: ${currentMs.toFixed(2)} ms`, 10, 80);
+        doc.text(`SYSTEM_STABILITY: ${efficiency.toFixed(2)}%`, 10, 90);
+        
+        doc.setFont("courier", "bold");
+        doc.text("--- TOPOLOGICAL COMPLEXITY ---", 10, 110);
+        doc.setFont("courier", "normal");
+        doc.text(`RECURSIVE_FOLDS: ${top.folds}`, 10, 120);
+        doc.text(`DISTRIBUTION_TYPE: ${top.dist}`, 10, 130);
+        
+        let fluxVar = top.baseVar + (Math.sin(globalTime) * 0.0005);
+        doc.text(`XYZ_DENSITY_VARIANCE: ${fluxVar.toFixed(5)}`, 10, 140);
+        
+        doc.save(`Sovereign_Lattice_Telemetry_${Date.now()}.pdf`);
+    };
+
+
+    function animate() {
+        requestAnimationFrame(animate);
+        
+        let now = performance.now();
+        let msDelta = now - lastTime;
+        lastTime = now;
+        
+        frameTimes.push(msDelta);
+        if(frameTimes.length > 30) frameTimes.shift();
+        
+        accumulatedTime += (msDelta * 0.001) * timeMultiplier;
+        globalTime = accumulatedTime;
+
+
+        if (streamsActive) {
+            const currentMs = frameTimes.reduce((a, b) => a + b) / frameTimes.length;
+            const stability = Math.min(100, 100 - (Math.abs(currentMs - 16.6) * 1.5));
+            document.getElementById('stream-perf').innerText = `MS_FRAME: ${currentMs.toFixed(2)} | LOAD: ${(currentMs / 16.6 * 100).toFixed(1)}%`;
+            document.getElementById('stream-stability').innerText = `STABILITY: ${stability.toFixed(1)}%`;
+            const top = TOPOLOGY_MAP[currentLogic];
+            const fluxVar = (top.baseVar + (Math.sin(globalTime) * 0.0005)).toFixed(5);
+            document.getElementById('stream-var').innerText = `DENSITY_VAR: ${fluxVar}`;
+        }
+        
+        const pos = particleSystem.geometry.attributes.position.array;
+        const col = particleSystem.geometry.attributes.color.array;
+
+
+        for (let i = 0; i < COUNT; i++) {
+            let i3 = i * 3;
+            let ratio = i / COUNT;
+            let stepMod = i * S; 
+            let x, y, z;
+
+
+            if (currentLogic === 'ORIGINAL') {
+                let angle = stepMod + globalTime;
+                let r = 160 * Math.pow(ratio, 1/S) * (1 + 0.2 * Math.sin(globalTime + i * 0.003));
+                x = Math.cos(angle) * r;
+                y = Math.sin(angle) * r * Math.cos(globalTime * 0.5 + ratio * S);
+                z = Math.sin(globalTime + i * 0.05) * 35;
+            } else if (currentLogic === 'TORUS') {
+                let radius = 180;
+                let theta = (ratio * Math.PI * 2 * S) + globalTime; 
+                let phi = stepMod; 
+                x = (radius + radius * Math.cos(theta)) * Math.cos(phi);
+                y = (radius + radius * Math.cos(theta)) * Math.sin(phi);
+                z = radius * Math.sin(theta);
+            } else if (currentLogic === 'TESSERACT') {
+                let s = 115 * S;
+                let phase = globalTime + ratio * Math.PI * S;
+                x = s * Math.sin(stepMod) * Math.cos(phase);
+                y = s * Math.cos(stepMod) * Math.sin(phase);
+                z = s * Math.cos(stepMod + globalTime) * Math.sin(stepMod * (1/S));
+            } else if (currentLogic === 'THREEBODY') {
+                let t = globalTime * (1/S);
+                x = 140 * Math.sin(stepMod + t) * Math.cos(stepMod * S + t);
+                y = 140 * Math.sin(stepMod + t * S) * Math.sin(stepMod * S + t);
+                z = 110 * Math.cos(stepMod * (1/S) + t);
+            } else if (currentLogic === 'HYPERBOLIC') {
+                let r = 200 * Math.sqrt(ratio);
+                let theta = stepMod + globalTime;
+                x = r * Math.cos(theta);
+                y = r * Math.sin(theta);
+                z = Math.sin(r * 0.05 + globalTime) * 40;
+            } else if (currentLogic === 'SOVEREIGN') {
+                let r = 160 * Math.pow(ratio, 1/S);
+                x = Math.cos(stepMod + globalTime) * r;
+                y = Math.sin(stepMod + globalTime) * r;
+                z = Math.sin(globalTime + stepMod) * 35;
+            }
+
+
+            pos[i3] = x; pos[i3+1] = y; pos[i3+2] = z;
+
+
+            let colorPhase = globalTime * 0.5 + ratio * 2;
+            let neonBloom = 0.5 + 0.5 * Math.sin(globalTime + ratio * S * 20);
+            let glowIntensity = (1.5 + Math.sin(colorPhase * S)) * (0.8 + 0.2 * neonBloom);
+
+
+            col[i3]   = (0.4 + 0.6 * Math.cos(colorPhase)) * glowIntensity;
+            col[i3+1] = (0.4 + 0.6 * Math.sin(colorPhase * S)) * glowIntensity;
+            col[i3+2] = (0.4 + 0.6 * Math.cos(colorPhase + S)) * glowIntensity;
+        }
+
+
+        particleSystem.geometry.attributes.position.needsUpdate = true;
+        particleSystem.geometry.attributes.color.needsUpdate = true;
+        
+        controls.update();
+        renderer.render(scene, camera);
+    }
+
+
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+
+    window.onload = init;
+</script>
+</body>
+</html>
